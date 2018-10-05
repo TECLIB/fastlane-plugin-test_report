@@ -1,0 +1,7 @@
+- app-shell
+- CFPropertyList
+- fastlane-plugin-test_report
+- fastlane-plugin-xcov_report
+- glpi-plugin-armadito
+- react-winjs
+- swift framework template
