@@ -13,9 +13,9 @@
     "email": "nmedina@teclib.com"
   },
   "license": "MIT",
-  "social_media_url": "https://twitter.com/FlyveMDM",
+  "social_media_url": "https://twitter.com/Teclib",
   "bugs": {
-    "url": "https://github.com/Naylin15/fastlane-plugin-test_report/issues"
+    "url": "https://github.com/TECLIB/fastlane-plugin-test_report/issues"
   },
   "devDependencies": {
     "conventional-github-releaser": "^3.1.2",
