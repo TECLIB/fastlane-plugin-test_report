@@ -16,9 +16,10 @@ module Fastlane
         file = File.new(File.expand_path(params[:report_path]))
         doc = Document.new(file)
 
+        if params[:template_path] == nil
         template = '---
-        layout: testReport
-        ---
+layout: testReport
+---
                         
                         <div class="total row">
                         <h2 class="col-sm-18">Test Results</h2>
@@ -70,10 +71,13 @@ module Fastlane
                          <% end %>
                 
                     </div>'
+        else
+          template = File.read(params[:template_path])
+        end
 
         result = ERB.new(template).result(binding())
 
-        open('fastlane/test_output/index.html', 'w') do |f|
+        open('./fastlane/test_output/index.html', 'w') do |f|
           f.puts result
         end
 
@@ -101,7 +105,12 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :report_path,
                                   env_name: "TEST_REPORT_PATH",
                                description: "Path to the test report",
-                             default_value: './fastlane/test_output/report.xml')
+                             default_value: './fastlane/test_output/report.xml'),
+          FastlaneCore::ConfigItem.new(key: :template_path,
+                                  env_name: "TEMPLATE_PATH",
+                               description: "Path to the template",
+                                      type: String,
+                                  optional: true)
         ]
       end
 
