@@ -10,8 +10,8 @@ Gem::Specification.new do |spec|
   spec.author        = 'Naylin Medina'
   spec.email         = 'nmedina@teclib.com'
 
-  spec.summary       = 'customized template for test reports[D[D[D[D[D[D[D[D[D[D[D'
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-test_report"
+  spec.summary       = 'customized template for iOS test reports'
+  spec.homepage      = "https://github.com/TECLIB/fastlane-plugin-test_report"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
