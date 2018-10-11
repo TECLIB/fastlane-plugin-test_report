@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name='FlyveMDMInventoryAgentTests.xctest' tests='8' failures='0'>
+  <testsuite name='FlyveMDMInventoryAgentUITests.FlyveMDMInventoryAgentUITests' tests='1' failures='0'>
+    <testcase classname='FlyveMDMInventoryAgentUITests.FlyveMDMInventoryAgentUITests' name='testTakeScreenshots' time='26.674'/>
+  </testsuite>
+  <testsuite name='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' tests='7' failures='0'>
+    <testcase classname='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' name='testAgentSettingsController' time='0.014'/>
+    <testcase classname='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' name='testCreateInventory' time='0.028'/>
+    <testcase classname='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' name='testFooterView' time='0.009'/>
+    <testcase classname='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' name='testInventoryTableView' time='0.011'/>
+    <testcase classname='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' name='testLoadingIndicatorView' time='0.009'/>
+    <testcase classname='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' name='testMessageLabel' time='0.009'/>
+    <testcase classname='FlyveMDMInventoryAgentTests.FlyveMDMInventoryAgentTests' name='testSendXMLInventory' time='0.020'/>
+  </testsuite>
+</testsuites>
