@@ -11,16 +11,14 @@ module Fastlane
 
         include REXML
 
-        File.rename("fastlane/test_output/report.junit", "fastlane/test_output/report.xml")
-
         file = File.new(File.expand_path(params[:report_path]))
         doc = Document.new(file)
 
-        if params[:template_path] == nil
+        if params[:template_path].nil?
         template = '---
 layout: testReport
 ---
-                        
+                     
                         <div class="total row">
                         <h2 class="col-sm-18">Test Results</h2>
                         <h2 class="col-sm-6 text-right"><%= doc.root.attributes["tests"] %> tests</h2>
@@ -39,10 +37,10 @@ layout: testReport
                         </div>
                         <!-- Failing or passing class -->
                         <div id="<%= "test-#{i}"%>">
-                         
+
                             <% doc.elements.each("testsuites/testsuite/testcase") do |test| %>
                                 <% if test.attributes["classname"] == name.attributes["name"] %>
-                                    
+    
                                     <% if test.attributes["time"] == nil %>
                                 <div class="test-case--failing row">
                                  <div class="col-sm-16">
@@ -69,7 +67,7 @@ layout: testReport
                             <% end %>
                         </div>
                          <% end %>
-                
+
                     </div>'
         else
           template = File.read(params[:template_path])
@@ -77,10 +75,9 @@ layout: testReport
 
         result = ERB.new(template).result(binding())
 
-        open('./fastlane/test_output/index.html', 'w') do |f|
+        open(File.join(params[:output_dir], '/index.html'), 'w') do |f|
           f.puts result
         end
-
       end
 
       def self.description
@@ -105,7 +102,11 @@ layout: testReport
           FastlaneCore::ConfigItem.new(key: :report_path,
                                   env_name: "TEST_REPORT_PATH",
                                description: "Path to the test report",
-                             default_value: './fastlane/test_output/report.xml'),
+                                  optional: false),
+          FastlaneCore::ConfigItem.new(key: :output_dir,
+                                  env_name: "OUTPUT_DIR",
+                               description: "Output path for file",
+                                  optional: false),
           FastlaneCore::ConfigItem.new(key: :template_path,
                                   env_name: "TEMPLATE_PATH",
                                description: "Path to the template",
