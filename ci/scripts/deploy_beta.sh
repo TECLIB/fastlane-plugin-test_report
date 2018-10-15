@@ -23,21 +23,10 @@
 #  -------------------------------------------------------------------
 #
 
-# install node
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt-get install -y nodejs
+export CURRENT_VERSION=$(jq -r ".version" package.json)
+yarn standard-version --prerelease 'rc'
+export NEW_VERSION=$(jq -r ".version" package.json)
+ruby ./ci/scripts/version.rb $CURRENT_VERSION $NEW_VERSION
 
-curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-    sudo apt-get update && sudo apt-get install yarn
-
-# install dependencies
-bundle install --path vendor/bundle
-
-yarn install
-
-# configure git
-git config --global user.email $GITHUB_EMAIL
-git config --global user.name "Teclib"
-git remote remove origin
-git remote add origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME.git
+gem build fastlane-plugin-test_report.gemspec
+gem push *.gem

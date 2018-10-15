@@ -25,15 +25,15 @@ reference:
       name: Build gem
       command: gem build fastlane-plugin-test_report.gemspec
 
-  deploy_develop: &deploy_develop
+  deploy_beta: &deploy_beta
     run:
       name: Deploy beta version
       command: echo "deploying beta"
     
-  deploy_master: &deploy_master
+  release: &release
     run:
-      name: Deploy production version
-      command: echo "deploying production"
+      name: Release
+      command: echo "running release"
   
   documentation: &documentation
     run:
@@ -94,7 +94,32 @@ jobs:
       - *save_yarn_cache
       - *rake_test
       - *documentation
-
+  deploy_beta:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *deploy_beta
+  release:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *build_gem
+      # - run:
+      #     name: Publish to RubyGems
+      #     command: source ci/scripts/publish.sh
+      - run:
+          name: GitHub release
+          command: source ci/scripts/release.sh
 workflows:
   version: 2
   build-test-deploy:
@@ -104,8 +129,9 @@ workflows:
           requires:
             - build
           filters:
-            ignore:
-              - master
+            branches:
+              ignore:
+                - master
       - documentation:
           requires:
             - test
@@ -114,17 +140,24 @@ workflows:
               only:
                 - develop
                 - master
-      - deploy_develop:
+      - deploy_beta:
           requires:
-            - build
+            - test
           filters:
             branches:
               only:
                 - develop
-      - deploy_master:
+      - release:
           requires:
             - build
           filters:
             branches:
               only:
-                - master
+                - /ˆrelease/.*/
+      # - deploy_master:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
