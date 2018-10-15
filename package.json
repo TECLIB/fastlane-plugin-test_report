@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Create customized HTML template for test reports",
   "homepage": "https://teclib.github.io/fastlane-plugin-test_report/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Naylin15/fastlane-plugin-test_report-fork.git"
+  },
   "keywords": [
     "fastlane-plugin",
     "test-report",
