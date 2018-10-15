@@ -1,30 +1,130 @@
 version: 2
+reference:
+
+  workspace: &workspace ~/project
+
+  docker_image: &docker_image circleci/ruby:2.5.1
+
+  container_config: &container_config
+    docker:
+      - image: *docker_image
+    working_directory: *workspace
+
+  config_environment: &config_environment
+    run:
+      name: Set up environment
+      command: source ci/scripts/install.sh
+    
+  rake_test: &rake_test
+    run:
+      name: Run tests and linter
+      command: bundle exec rake
+    
+  build_gem: &build_gem
+    run:
+      name: Build gem
+      command: gem build fastlane-plugin-test_report.gemspec
+
+  deploy_develop: &deploy_develop
+    run:
+      name: Deploy beta version
+      command: echo "deploying beta"
+    
+  deploy_master: &deploy_master
+    run:
+      name: Deploy production version
+      command: echo "deploying production"
+  
+  documentation: &documentation
+    run:
+      name: Send documentation to gh-pages
+      command: source ci/scripts/documentation.sh
+
+  restore_yarn_cache: &restore_yarn_cache
+    restore_cache:
+      keys:
+        - yarn-dependencies-{{ checksum "yarn.lock" }}
+    
+  save_yarn_cache: &save_yarn_cache
+    save_cache:
+      paths:
+        - ./node_modules/
+      key: yarn-dependencies-{{ checksum "yarn.lock" }}
+    
+  restore_gem_cache: &restore_gem_cache
+    restore_cache:
+      keys:
+        - gem-dependencies-{{ checksum "Gemfile" }}
+    
+  save_gem_cache: &save_gem_cache
+    save_cache:
+      paths:
+        - ./vendor
+      key: yarn-dependencies-{{ checksum "Gemfile" }}
+
 jobs:
   build:
-    docker:
-       - image: circleci/ruby:2.4.2
-
-    working_directory: ~/project
-
+    <<: *container_config
     steps:
       - checkout
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "Gemfile.lock" }}
-          - v1-dependencies-
-      - run:
-          name: install dependencies
-          command: |
-           bundle install --path vendor/bundle
-      - save_cache:
-          paths:
-            - ./vendor
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
-      - run:
-          name: run tests
-          command: bundle exec rake
-      - store_test_results:
-          path: ~/repo/test-results
-      - store_artifacts:
-          path: ~/repo/test-results
-          destination: test-results
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *build_gem
+  test:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *rake_test
+  documentation:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *rake_test
+      - *documentation
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+          filters:
+            ignore:
+              - master
+      - documentation:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+      - deploy_develop:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - develop
+      - deploy_master:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
