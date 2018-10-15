@@ -11,3 +11,7 @@ fastlane/report.xml
 coverage
 test-results
 spec/fixture
+
+## Package
+
+node_modules/
