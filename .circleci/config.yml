@@ -104,8 +104,9 @@ workflows:
           requires:
             - build
           filters:
-            ignore:
-              - master
+            branches:
+              ignore:
+                - master
       - documentation:
           requires:
             - test
