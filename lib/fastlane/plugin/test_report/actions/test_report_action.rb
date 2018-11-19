@@ -18,7 +18,7 @@ module Fastlane
         template = '---
 layout: testReport
 ---
-                     
+
                         <div class="total row">
                         <h2 class="col-sm-18">Test Results</h2>
                         <h2 class="col-sm-6 text-right"><%= doc.root.attributes["tests"] %> tests</h2>
@@ -40,7 +40,7 @@ layout: testReport
 
                             <% doc.elements.each("testsuites/testsuite/testcase") do |test| %>
                                 <% if test.attributes["classname"] == name.attributes["name"] %>
-    
+
                                     <% if test.attributes["time"] == nil %>
                                 <div class="test-case--failing row">
                                  <div class="col-sm-16">
@@ -76,7 +76,7 @@ layout: testReport
         result = ERB.new(template).result(binding())
 
         open(File.join(params[:output_dir], '/index.html'), 'w') do |f|
-          f.puts result
+          f.puts(result)
         end
       end
 

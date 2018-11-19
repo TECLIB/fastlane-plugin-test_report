@@ -1,43 +1,163 @@
-# Ruby CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-ruby/ for more details
-#
 version: 2
+reference:
+
+  workspace: &workspace ~/project
+
+  docker_image: &docker_image circleci/ruby:2.5.1
+
+  container_config: &container_config
+    docker:
+      - image: *docker_image
+    working_directory: *workspace
+
+  config_environment: &config_environment
+    run:
+      name: Set up environment
+      command: source ci/scripts/install.sh
+    
+  rake_test: &rake_test
+    run:
+      name: Run tests and linter
+      command: bundle exec rake
+    
+  build_gem: &build_gem
+    run:
+      name: Build gem
+      command: gem build fastlane-plugin-test_report.gemspec
+
+  deploy_beta: &deploy_beta
+    run:
+      name: Deploy beta version
+      command: echo "deploying beta"
+    
+  release: &release
+    run:
+      name: Release
+      command: echo "running release"
+  
+  documentation: &documentation
+    run:
+      name: Send documentation to gh-pages
+      command: source ci/scripts/documentation.sh
+
+  restore_yarn_cache: &restore_yarn_cache
+    restore_cache:
+      keys:
+        - yarn-dependencies-{{ checksum "yarn.lock" }}
+    
+  save_yarn_cache: &save_yarn_cache
+    save_cache:
+      paths:
+        - ./node_modules/
+      key: yarn-dependencies-{{ checksum "yarn.lock" }}
+    
+  restore_gem_cache: &restore_gem_cache
+    restore_cache:
+      keys:
+        - gem-dependencies-{{ checksum "Gemfile" }}
+    
+  save_gem_cache: &save_gem_cache
+    save_cache:
+      paths:
+        - ./vendor
+      key: yarn-dependencies-{{ checksum "Gemfile" }}
+
 jobs:
   build:
-    docker:
-      # specify the version you desire here
-       - image: circleci/ruby:2.4.2
-
-    working_directory: ~/repo
-
+    <<: *container_config
     steps:
       - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "Gemfile" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *build_gem
+  test:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *rake_test
+  documentation:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *rake_test
+      - *documentation
+  deploy_beta:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *deploy_beta
+  release:
+    <<: *container_config
+    steps:
+      - checkout
+      - *restore_gem_cache
+      - *restore_yarn_cache
+      - *config_environment
+      - *save_gem_cache
+      - *save_yarn_cache
+      - *build_gem
+      # - run:
+      #     name: Publish to RubyGems
+      #     command: source ci/scripts/publish.sh
       - run:
-          name: install dependencies
-          command: bundle check || bundle install --jobs=4 --retry=3 --path vendor/bundle
-
-      - save_cache:
-          paths:
-            - ./vendor
-          key: v1-dependencies-{{ checksum "Gemfile" }}
-
-      # run tests!
-      - run:
-          name: run tests
-          command: bundle exec rake
-
-      # collect reports
-      - store_test_results:
-          path: ~/repo/test-results
-      - store_artifacts:
-          path: ~/repo/test-results
-          destination: test-results
+          name: GitHub release
+          command: source ci/scripts/release.sh
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore:
+                - master
+      - documentation:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - develop
+                - master
+      - deploy_beta:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - develop
+      - release:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - /ˆrelease/.*/
+      # - deploy_master:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
