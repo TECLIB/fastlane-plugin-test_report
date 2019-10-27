@@ -78,7 +78,9 @@ Obtain a personalized service experience, associated with benefits and opportuni
 ## Contribute
 
 Want to file a bug, contribute some code, or improve documentation? Excellent! Read up on our
-guidelines for [contributing](https://github.com/TECLIB/fastlane-plugin-test_report/blob/develop/CONTRIBUTING.md) and then check out one of our issues in the [Issues Dashboard](https://github.com/TECLIB/fastlane-plugin-test_report/issues).
+guidelines for 
+- [contributing](https://github.com/TECLIB/fastlane-plugin-test_report/blob/develop/CONTRIBUTING.md) 
+- [Issues Dashboard](https://github.com/TECLIB/fastlane-plugin-test_report/issues).
 
 ## Copying
 
